@@ -1,0 +1,174 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include "pila.h"
+///VARIABLES GLOBALES:
+int dim = 100;
+
+///PROTOTIPADO DE FUNCIONES:
+///FUNCIONES PUNTO 1:
+int cargarNotas(int notas[dim]);
+int validacionNota(int nota);
+void mostrarArr(int notas[], int validos);
+///FUNCIONES PUNTO 2:
+void pasarAPilaAproYDesapro(int notas[], int validos, Pila *aprobados, Pila *desaprobados);
+///FUNCIONES PUNTO 3:
+int encontrarMayorArrReves(int notas[], int validos);
+///FUNCIONES PUNTO 4:
+void cargarPila(Pila *pilaA, Pila *pilaB, Pila *pilaC);
+///FUNCIONES PUNTO 5:
+int pasarElementosAlArreglo(Pila *pilaB, int arr[dim]);
+
+int main()
+{
+///PUNTO 1:
+int notas[dim];
+int validos = cargarNotas(notas);
+
+///PUNTO 2:
+///Pasar a pila aprobados los mayores de o iguales a 6
+///Pasar a pila desaprobados a menores o iguales a 5
+Pila aprobados, desaprobados;
+inicpila(&aprobados);
+inicpila(&desaprobados);
+pasarAPilaAproYDesapro(notas, validos, &aprobados, &desaprobados);
+printf("\n Mostrando Pila de Aprobados: \n");
+mostrar(&aprobados);
+printf("\n Mostrando Pila de Desaprobados:  \n");
+mostrar(&desaprobados);
+
+///PUNTO 3:
+///Recorrer el arreglo de atras para delante y encontrar la nota mayor:
+int notaMayor = encontrarMayorArrReves(notas, validos);
+printf("La nota mayor del arreglo es: %i ", notaMayor);
+printf("\n");
+
+
+///PUNTO 4:
+Pila pilaA, pilaB, pilaC;
+inicpila(&pilaA);
+inicpila(&pilaB);
+inicpila(&pilaC);
+cargarPila(&pilaA, &pilaB, &pilaC);
+
+printf("\n MOSTRANDO PILA DE MULTIPLOS DE 10: \n");
+mostrar(&pilaA);
+printf("\n MOSTRANDO PILA DE NUMEROS PARES:  \n");
+mostrar(&pilaB);
+printf("\n MOSTRANDO PILA DE NUMEROS IMPARES:  \n");
+mostrar(&pilaC);
+
+///PUNTO 5:
+///Pasar de la pilaB todos los numeros del 4 al 48 inclusive:
+ int arreglo[dim];
+
+ printf("\n MOSTRANDO ARREGLO CON NUMEROS DEL 4 AL 48: \n");
+ int validos2 = pasarElementosAlArreglo(&pilaB, arreglo);
+ mostrarArr(arreglo, validos2);
+ printf("\n");
+}
+///FUNCION PUNTO 1:
+int cargarNotas(int notas[dim]){
+    int i = 0;
+    char eleccion = 's';
+    int nota;
+
+    while(i < dim && eleccion == 's'){
+        printf("\nIngrese una nota: ");
+        fflush(stdin);
+        scanf("%i", &nota);
+        int validar = validacionNota(nota);
+        if(validar == 1){
+            notas[i] = nota;
+            i++;
+        }else{
+            printf("\nNota ingresada no valida.\n");
+        }
+
+        printf("\nPulsa 's' si desea continuar: ");
+        fflush(stdin);
+        scanf("%c", &eleccion);
+    }
+    return i;
+}
+
+///Validacion de la nota:
+int validacionNota(int nota){
+    int flag = 0;
+    if(nota >= 0 && nota < 11 ){
+        flag = 1;
+    }
+    return flag;
+}
+void mostrarArr(int notas[], int validos){
+    int i;
+    for(i = 0; i<validos; i++){
+        printf("|%i| ", notas[i]);
+    }
+}
+
+///FUNCION PUNTO 2:
+void pasarAPilaAproYDesapro(int notas[], int validos, Pila *aprobados, Pila *desaprobados){
+    int i;
+    for(i = 0; i < validos; i++){
+        if(notas[i] >= 6 && notas[i] <= 10){
+            apilar(aprobados, notas[i]);
+        }else{
+            apilar(desaprobados, notas[i]);
+        }
+
+    }
+}
+///FUNCION PUNTO 3:
+int encontrarMayorArrReves(int notas[], int validos){
+    int i = validos - 1;
+    int notaMayor = notas[i];
+    i = i - 1;
+
+    while(i >= 0 && i < validos ){
+        if(notas[i] > notaMayor){
+            notas[i] = notaMayor;
+            notaMayor = notas[i];
+        }
+        i--;
+    }
+    return notaMayor;
+}
+///FUNCIONES PUNTO 4:
+///Cargar pila con usuario:
+void cargarPila(Pila *pilaA, Pila *pilaB, Pila *pilaC){
+    char eleccion = 's';
+    Pila aux;
+    inicpila(&aux);
+
+    while(eleccion == 's'){
+        leer(&aux);
+
+        if(tope(&aux) % 10 == 0){
+            apilar(pilaA, desapilar(&aux));
+        }else if(tope(&aux) % 2 == 0){
+            apilar(pilaB, desapilar(&aux));
+        }else if(tope(&aux) % 2 == 1){
+            apilar(pilaC, desapilar(&aux));
+        }
+
+        printf("\nPulsa 's' si desea continuar: \n");
+        fflush(stdin);
+        scanf("%c", &eleccion);
+    }
+}
+
+int pasarElementosAlArreglo(Pila *pilaB, int arr[dim]){
+    Pila aux;
+    inicpila(&aux);
+    int i = 0;
+    while(!pilavacia(pilaB)){
+        if(tope(pilaB) > 4 && tope(pilaB) <= 48){
+            arr[i] = tope(pilaB);
+            apilar(&aux, desapilar(pilaB));
+             i++;
+        }else{
+            apilar(&aux, desapilar(pilaB));
+        }
+    }
+    return i;
+}
